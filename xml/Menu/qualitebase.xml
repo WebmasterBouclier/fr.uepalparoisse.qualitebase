@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/controle-qualite</path>
+    <page_callback>CRM_Qualitebase_Page_ControleQualiteParoisse</page_callback>
+    <title>ControleQualiteParoisse</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+</menu>
