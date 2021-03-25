@@ -6,4 +6,10 @@
     <title>ControleQualiteParoisse</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/amelioration-qualite</path>
+    <page_callback>CRM_Qualitebase_Page_AmeliorationQualiteParoisse</page_callback>
+    <title>AmeliorationQualiteParoisse</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>

@@ -1,11 +1,14 @@
 <?php
+
+setlocale (LC_TIME, 'fr_FR.utf8','fra');
+
 use CRM_Qualitebase_ExtensionUtil as E;
 
 class CRM_Qualitebase_Page_ControleQualiteParoisse extends CRM_Core_Page {
 
 	public function run() {
 		// Set the page-title dynamically; alternatively, declare a static title in xml/Menu/*.xml
-		CRM_Utils_System::setTitle(E::ts('Page de contrôle de la qualité de la base de données (Paroisses)'));
+		CRM_Utils_System::setTitle(E::ts('Corrections des données de la base (Paroisses)'));
 
 		// Assign variables for use in a template
 		// Fiches Individus
@@ -16,9 +19,13 @@ class CRM_Qualitebase_Page_ControleQualiteParoisse extends CRM_Core_Page {
 		$this->assign('IndividuEncoreStatutEnfant', $this->getIndividuEncoreStatutEnfantTable());		
 		$this->assign('IndividuSansLienFoyerOrganisation', $this->getIndividuSansLienFoyerOrganisationTable());		
 		$this->assign('IndividuEnfantChefFamille', $this->getIndividuEnfantChefFamilleTable());		
+		$this->assign('IndividuDansFoyerParents', $this->getIndividuDansFoyerParentsTable());		
+		$this->assign('EMailErreurs', $this->getEMailErreursTable());
 		
-		
-		
+	
+
+
+	
 		// Fiches Foyers
 		$this->assign('FoyerAvecMembre', $this->getFoyerAvecMembreTable());
 		$this->assign('FoyerSansAdresse', $this->getFoyerSansAdresse());
@@ -342,7 +349,156 @@ SELECT DISTINCT
 		return $t;
 	}
 
+// Recherche des Individus ayant plus de 27 ans (ou fiche crée il y a plus de 27 ans) et qui sont encore rattaché au Foyer de leurs parents -- A TRAVAILLER (POUR NE PAS METTRE LE CODE STATUT EN DUR)
+	private function getIndividuDansFoyerParentsTable() {
+		$t = [];
+		//  A TRAVAILLER
+		$sql = "
+		SELECT DISTINCT
+			c.id,
+			c.display_name,
+			c.birth_date,
+			c_b.display_name AS display_name_b
+			
+		FROM civicrm_contact AS c
+		LEFT JOIN civicrm_membership AS m ON c.id = m.contact_id
+		LEFT JOIN civicrm_relationship AS r ON c.id = r.contact_id_a
+		LEFT JOIN civicrm_contact AS c_b ON r.contact_id_b = c_b.id
+		WHERE 
+			c.id NOT IN 
+				(
+				SELECT
+					c1.id
+				FROM civicrm_contact AS c1
+				LEFT JOIN civicrm_relationship AS r1 ON c1.id = r1.contact_id_a
+				WHERE
+					r1.relationship_type_id = '7'
+					AND c1.is_deleted = 0
+					AND c1.is_deceased = 0
+				)	
+			AND c.contact_type = 'Individual'
+			AND 
+				(
+				((YEAR(NOW()) - YEAR(c.birth_date)) > 27)
+				OR
+				(c.birth_date IS NULL AND (YEAR(NOW()) - YEAR(m.start_date)) > 27)
+				OR
+				(c.birth_date IS NULL AND (YEAR(NOW()) - YEAR(m.join_date)) > 27)
+				)
+			
+				
+			AND r.is_active = 1
+			AND r.relationship_type_id = '8'
+			AND c.is_deleted = 0
+			AND c.is_deceased = 0
+		ORDER BY c.sort_name ASC
+		";
 
+/*
++-----+--------------+
+| id  | display_name | birth_date | display_name_b |
++-----+--------------+
+*/
+		
+		$dao = CRM_Core_DAO::executeQuery($sql);
+		
+		while ($dao->fetch()) {
+			$t[] = [$dao->id, $dao->display_name, $dao->birth_date, $dao->display_name_b];
+		}
+		
+		return $t;
+	}
+
+
+
+// Recherche des E-mails en Erreur -- A TRAVAILLER (POUR NE PAS METTRE LE CODE STATUT EN DUR)
+	private function getEMailErreursTable() {
+		$t = [];
+		
+		$sql = "
+		SELECT
+			c.id,
+			c.display_name,
+			e.email,
+			e.hold_date
+		FROM civicrm_contact AS c
+		LEFT JOIN civicrm_email AS e ON c.id = e.contact_id
+		WHERE 
+			e.on_hold IN ('1', '2')
+			AND c.is_deleted = 0
+			AND c.is_deceased = 0
+		ORDER BY e.hold_date DESC, c.display_name ASC
+		";
+
+/*
++-----+--------------+-------+-----------+
+| id  | display_name | email | hold_date |
++-----+--------------+-------+-----------+
+*/
+		
+		$dao = CRM_Core_DAO::executeQuery($sql);
+		
+		while ($dao->fetch()) {
+			$t[] = [$dao->id, $dao->display_name, $dao->email, $dao->hold_date];
+		}
+		
+		return $t;
+	}
+
+/*
+// Individus Sans adresse mail -- A TRAVAILLER (POUR NE PAS METTRE LE CODE STATUT EN DUR)
+	private function getIndividuSansMailTable() {
+		$t = [];
+		
+		$sql = "
+		SELECT
+			DISTINCT c.id,
+			c.display_name,
+			p.phone,
+			p_b.phone,
+			GROUP_CONCAT(DISTINCT(m.membership_type_id))
+			
+			
+			
+		FROM civicrm_contact AS c
+		LEFT JOIN civicrm_email AS e ON c.id = e.contact_id
+		LEFT JOIN civicrm_phone AS p ON c.id = p.contact_id
+		LEFT JOIN civicrm_relationship AS r ON c.id = r.contact_id_a
+		LEFT JOIN civicrm_contact AS c_b ON r.contact_id_b = c_b.id
+		LEFT JOIN civicrm_phone AS p_b ON c_b.id = p_b.contact_id
+		JOIN civicrm_membership AS m on c.id = m.contact_id
+		WHERE 
+			c.contact_type = 'Individual'
+			AND r.relationship_type_id IN ('7', '8')
+			AND r.is_active = '1'
+			AND e.email IS NULL
+			AND c.do_not_email = '0'
+			AND ((YEAR(NOW()) - YEAR(c.birth_date)) >= 10)
+			
+			
+			
+			AND c.is_deleted = 0
+			AND c.is_deceased = 0
+		GROUP BY c.id
+		ORDER BY c.sort_name ASC
+		
+		";
+
+/*
++-----+--------------+-------+-----------+
+| id  | display_name | email | hold_date |
++-----+--------------+-------+-----------+
+*/
+/*		
+		$dao = CRM_Core_DAO::executeQuery($sql);
+		
+		while ($dao->fetch()) {
+			$t[] = [$dao->id, $dao->display_name, $dao->email, $dao->hold_date];
+		}
+		
+		return $t;
+	}
+*/
 
 
 

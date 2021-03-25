@@ -1,4 +1,10 @@
-<h3>Contrôle sur les Individus</h3>
+<h4>Comment utiliser cette page ?</h4>
+<div>Cette page vous indique les corrections à effectuer pour améliorer la qualité de votre base de données.</div>
+<div>Pour permettre une utilisation optimale de la base de données, il serait bon que vous puissiez .</div>
+<div>Un autre page est disponible, qui liste les améliorations qu'il serait possible de faire dans votre base. Cette page est <a href="{crmURL p='civicrm/amelioration-qualite'}">consultable en cliquant ici.</a></div>
+<p></p>
+
+<h3>Corrections sur les fiches Individus</h3>
 
 <!-- Affichage des Individus sans Genre -->
 <div class="crm-accordion-wrapper crm-ajax-accordion collapsed">
@@ -80,48 +86,6 @@
 	</div>
 </div>
 
-
-<!-- Affichage des Individus sans Date de Naissance -->
-<div class="crm-accordion-wrapper crm-ajax-accordion collapsed">
-	<div class="crm-accordion-header">Individus sans Date de Naissance ({$IndividuSansBirthday|@count} fiches à contrôler)</div>
-	<div class="crm-accordion-body">
-		<h5>Contexte</h5>
-			<ul>
-				<li>Certaines fiches sont créées sans indication de la date de naissance</li>
-			</ul>
-		<h5>Risques</h5>
-			<ul>
-				<li>Pas d'indication de l'âge sur les listes</li>
-				<li>Absence des ciblages pour les actions liées aux anniversaires</li>
-				<li>Mauvais renseignement sur la personne</li>
-			</ul>
-		<h5>Actions à mener</h5>
-			<ul>
-				<li>Cliquer sur le lien pour ouvrir la fiche dans un nouvel onglet</li>
-				<li>Cliquer sur Modifier</li>
-				<li>Dans la partie Données démographiques, renseigner la date de naissance</li>
-				<li>Sauvegarder</li>
-			</ul>
-		<h5>Liste des individus concernés</h5>
-		<div>Fiches classées par date de création (plus récentes en premier)</div>
-			<table class="report-layout display">
-				<thead>
-					<tr>
-						<th>Identifiant CiviCRM</th>
-						<th>Nom et Prénom</th>
-					</tr>
-				</thead>
-				<tbody>
-					{foreach from=$IndividuSansBirthday item=row}
-						<tr class="{cycle values="odd-row,even-row"}">
-							<td>{$row[0]}</td>
-							<td><a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$row[0]`"}" target="_blank">{$row[1]}</a></td>
-						</tr>
-					{/foreach}
-				</tbody>
-			</table>
-	</div>
-</div>
 <!-- Affichage des Individus sans Statut Membre -->
 <div class="crm-accordion-wrapper crm-ajax-accordion collapsed">
 	<div class="crm-accordion-header">Individus sans Statut Membre ({$IndividuSansStatutMembre|@count} fiches à contrôler)</div>
@@ -306,11 +270,64 @@
 	</div>
 </div>
 
+<!-- Affichage des Individus de plus de 27 ans encore rattaché au Foyer de leurs parents -->
+<div class="crm-accordion-wrapper crm-ajax-accordion collapsed">
+	<div class="crm-accordion-header">Individus de plus de 27 ans encore rattaché au Foyer de leurs parents ({$IndividuDansFoyerParents|@count} fiches à contrôler)</div>
+	<div class="crm-accordion-body">
+		<h5>Contexte</h5>
+			<ul>
+				<li>Certaines personnes, âgées de plus de 27 ans, sont encore rattachées au foyer de leurs parents</li>
+				<li>A cette âge-là, il est fort probable qu'ils n'habitent plus chez leurs parents</li>
+			</ul>
+		<h5>Risques</h5>
+			<ul>
+				<li>Erreurs de ciblage</li>
+				<li>Mauvais renseignement sur la personne</li>
+				<li>Erreur de composition des Foyers</li>
+				<li>Mauvais suivi du jeune</li>
+			</ul>
+		<h5>Actions à mener</h5>
+			<ul>
+				<li>Cliquer sur le lien pour ouvrir la fiche dans un nouvel onglet</li>
+				<li>Cliquer sur l'onglet Relation</li>
+				<li>Sur la ligne "Membre du foyer", cliquer sur 'Plus' puis sur 'Desactiver'</li>
+				<li>Confirmer la désactivation</li>
+				<li>IMPORTANT : il faut ensuite créer un nouveau Foyer au nom de la personne, et rattacher la ficher Invididu à ce nouveau Foyer.</li>
+				<li>Pour créer le nouveau Foyer, utiliser le formulaire de création d'une nouvelle fiche Foyer</li>
+				<li>Puis aller sur la fiche Individu, et cliquer sur l'onglet Relation</li>
+				<li>Cliquer sur Ajouter une relation</li>
+				<li>Choisir le type de relation "Membre du Foyer"</li>
+				<li>A la ligne Contacts, choisir le nouveau Foyer crée précédemment.</li>
+				<li>Enregistrer</li>
+			</ul>
+		<h5>Liste des individus concernés</h5>
+			<table class="report-layout display">
+				<thead>
+					<tr>
+						<th>Identifiant CiviCRM</th>
+						<th>Nom et Prénom</th>
+						<th>Date de naissance</th>
+						<th>Foyer d'appartenance</th>
+					</tr>
+				</thead>
+				<tbody>
+					{foreach from=$IndividuDansFoyerParents item=row}
+						<tr class="{cycle values="odd-row,even-row"}">
+							<td>{$row[0]}</td>
+							<td><a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$row[0]`"}" target="_blank">{$row[1]}</a></td>
+							<td>{$row[2]|date_format:"%d %B %Y "}</td>
+							<td>{$row[3]}</td>
+						</tr>
+					{/foreach}
+				</tbody>
+			</table>
+	</div>
+</div>
+
 
 <p> </p>
 
-
-<h3>Contrôle sur les Foyers</h3>
+<h3>Corrections sur les fiches Foyers</h3>
 
 <!-- Affichage des Foyers ayant un Statut Membre -->
 <div class="crm-accordion-wrapper crm-ajax-accordion collapsed">
@@ -352,45 +369,6 @@
 	</div>
 </div>
 
-<!-- Affichage des Foyers n'ayant pas d'adresse -->
-<div class="crm-accordion-wrapper crm-ajax-accordion collapsed">
-	<div class="crm-accordion-header">Foyers n'ayant pas d'adresse ({$FoyerSansAdresse|@count} fiches à contrôler)</div>
-	<div class="crm-accordion-body">
-		<h5>Contexte</h5>
-			<ul>
-				<li>Certaines fiches Foyer n'ont pas d'adresses.</li>
-			</ul>
-		<h5>Risques</h5>
-			<ul>
-				<li>Impossibilité de communiquer avec les Individus composant le Foyer</li>
-				<li>Mauvais renseignements sur le Foyer</li>
-			</ul>
-		<h5>Actions à mener</h5>
-			<ul>
-				<li>Cliquer sur le lien pour ouvrir la fiche dans un nouvel onglet</li>
-				<li>Dans la fiche, cliquer sur Ajouter une adresse</li>
-				<li>Renseigner l'adresse du Foyer</li>
-				<li>Enregistrer</li>
-			</ul>
-		<h5>Liste des foyers concernés</h5>
-			<table class="report-layout display">
-				<thead>
-					<tr>
-						<th>Identifiant CiviCRM</th>
-						<th>Nom du Foyer</th>
-					</tr>
-				</thead>
-				<tbody>
-					{foreach from=$FoyerSansAdresse item=row}
-						<tr class="{cycle values="odd-row,even-row"}">
-							<td>{$row[0]}</td>
-							<td><a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$row[0]`"}" target="_blank">{$row[1]}</a></td>
-						</tr>
-					{/foreach}
-				</tbody>
-			</table>
-	</div>
-</div>
 
 <!-- Affichage des Foyers n'ayant pas de relations -->
 <div class="crm-accordion-wrapper crm-ajax-accordion collapsed">
@@ -526,54 +504,10 @@
 	</div>
 </div>
 
-<!-- Affichage des Foyers ayant participés à un Evenement -->
-<div class="crm-accordion-wrapper crm-ajax-accordion collapsed">
-	<div class="crm-accordion-header">Foyers ayant participés à un Evénement ({$FoyerEvenement|@count} fiches à contrôler)</div>
-	<div class="crm-accordion-body">
-		<h5>Contexte</h5>
-			<ul>
-				<li>A CHANGER Le statut de Membre est parfois mis par erreur sur une fiche Organisation</li>
-			</ul>
-		<h5>Risques</h5>
-			<ul>
-				<li>Comptabilisation erronée des Membres</li>
-				<li>Oubli du statut Membre sur les fiches Individu</li>
-			</ul>
-		<h5>Actions à mener</h5>
-			<ul>
-				<li>Cliquer sur le lien pour ouvrir la fiche dans un nouvel onglet</li>
-				<li>Cliquer sur l'onglet Adhésion de la fiche</li>
-				<li>Cliquer sur Renouveler sur la liste déroulante, et choisir Supprimer</li>
-				<li>Par précaution, et si nécessaire, vérifier que toutes les fiches Individus de l'Organisation aient un statut Membre</li>
-			</ul>
-		<h5>Liste des organisations concernées</h5>
-			<table class="report-layout display">
-				<thead>
-					<tr>
-						<th>Identifiant CiviCRM</th>
-						<th>Nom de l'Organisation</th>
-						<th>Evénement</th>
-					</tr>
-				</thead>
-				<tbody>
-					{foreach from=$FoyerEvenement item=row}
-						<tr class="{cycle values="odd-row,even-row"}">
-							<td>{$row[0]}</td>
-							<td><a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$row[0]`"}" target="_blank">{$row[1]}</a></td>
-							<td>{$row[2]}</td>
-						</tr>
-					{/foreach}
-			  </tbody>
-			</table>
-	</div>
-</div>
-
 <p> </p>
 
 
-
-
-<h3>Contrôle sur les Organisations</h3>
+<h3>Corrections sur les fiches Organisations</h3>
 
 <!-- Affichage des Organisations ayant un Statut Membre -->
 <div class="crm-accordion-wrapper crm-ajax-accordion collapsed">
@@ -615,67 +549,79 @@
 	</div>
 </div>
 
-<!-- Affichage des Organisations ayant participées à un Evenement -->
+<h3>Corrections sur les adresses mails</h3>
+
+<!-- Affichage des Emails en statut Erreur -->
 <div class="crm-accordion-wrapper crm-ajax-accordion collapsed">
-	<div class="crm-accordion-header">Organisations ayant participées à un Evénement ({$OrganisationEvenement|@count} fiches à contrôler)</div>
+	<div class="crm-accordion-header">E-mails en statut Erreurs ({$EMailErreurs|@count} fiches à contrôler)</div>
 	<div class="crm-accordion-body">
 		<h5>Contexte</h5>
 			<ul>
-				<li>A CHANGER Le statut de Membre est parfois mis par erreur sur une fiche Organisation</li>
+				<li>A CHANGER Certains mails sont indiqués comme erronés ou bloqués dans la base de données.</li>
+				<li>Cela fait suite soit à un problème sur l'adresse mail, soit à une action de la personne pour ne plus recevoir nos mails</li>
 			</ul>
 		<h5>Risques</h5>
 			<ul>
-				<li>Comptabilisation erronée des Membres</li>
-				<li>Oubli du statut Membre sur les fiches Individu</li>
+				<li>Non réception des communications envoyées par la paroisse</li>
+				<li>Absence d'information sur les activités proposeés</li>
+				<li>Perte de contact avec la personne</li>
+				<li>Sentiment de non-appartenance à la communauté</li>
 			</ul>
 		<h5>Actions à mener</h5>
 			<ul>
 				<li>Cliquer sur le lien pour ouvrir la fiche dans un nouvel onglet</li>
-				<li>Cliquer sur l'onglet Adhésion de la fiche</li>
-				<li>Cliquer sur Renouveler sur la liste déroulante, et choisir Supprimer</li>
-				<li>Par précaution, et si nécessaire, vérifier que toutes les fiches Individus de l'Organisation aient un statut Membre</li>
+				<li>Dans le champ Courriel apparait la raison du blocage</li>
+				<li>L'indication "Suspendue - exclusion des mailings" indique que l'Individu ne souhaite plus recevoir les mails de la paroisse. Si cela est avéré, effectuer les actions suivantes</li>
+				<ul>
+					<li>En cliquant sur Ajouter ou modifier adresse électronique, supprimer l'e-mail</li>
+					<li>En cliquant sur Modifier les préférences de communication, cocher la case Ne pas envoyer de courriel</li>
+					<li>Eventuellement, si la situation le justifie, supprimer l'ensemble de la fiche Individu, ainsi que le Foyer associé</li>
+					<li>Si l'individu souhaite tout de même continuer à recevoir les mails de la paroisse, cliquer sur Ajouter ou modifier adresse électronique, sélectionner le menu déroulant Invalide et cliquer sur la première ligne (- sélectionner-), puis Enregistrer. Puis dans Modifier les préférences de communication, veiller à ce que la ligne Utilisateur s'exclu des mailings ne soit pas cochée</li>
+				</ul>
+				<li>L'indication "Invalide" indique que l'e-mail n'est plus valable (les causes en sont multiples : boite aux lettres fermée ou pleine, erreur dans l'adresse mail, ...</li>
+				<ul>
+					<li>En cliquant sur Ajouter ou modifier adresse électronique, inscrire la bonne adresse e-mail</li>
+					<li>En cliquant sur Modifier les préférences de communication, cocher la case Ne pas envoyer de courriel</li>
+					<li>Eventuellement, si la situation le justifie, supprimer l'ensemble de la fiche Individu, ainsi que le Foyer associé</li>
+					<li>Si l'individu souhaite tout de même continuer à recevoir les mails de la paroisse, cliquer sur Ajouter ou modifier adresse électronique, sélectionner le menu déroulant Invalide et cliquer sur la première ligne (- sélectionner-), puis Enregistrer. Puis dans Modifier les préférences de communication, veiller à ce que la ligne Utilisateur s'exclu des mailings ne soit pas cochée</li>
+				</ul>				
 			</ul>
-		<h5>Liste des organisations concernées</h5>
+		<h5>Liste des individus concernés</h5>
 			<table class="report-layout display">
 				<thead>
 					<tr>
 						<th>Identifiant CiviCRM</th>
-						<th>Nom de l'Organisation</th>
-						<th>Evénement</th>
+						<th>Nom et Prénom</th>
+						<th>Adresse mail en erreur</th>
+						<th>Date de l'erreur</th>
 					</tr>
 				</thead>
 				<tbody>
-					{foreach from=$OrganisationEvenement item=row}
+					{foreach from=$EMailErreurs item=row}
 						<tr class="{cycle values="odd-row,even-row"}">
 							<td>{$row[0]}</td>
 							<td><a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$row[0]`"}" target="_blank">{$row[1]}</a></td>
 							<td>{$row[2]}</td>
+							<td>{$row[3]|date_format:"%d %B %Y "}</td>
 						</tr>
 					{/foreach}
-			  </tbody>
+				</tbody>
 			</table>
 	</div>
 </div>
 
 
 
-
 <p> </p>
 <h3>Encore à faire</h3>
 <ul>
-	<li>?? Individu sans Adresse</li>
 	<li>??? Individus sans Relations</li>
 	<li>Enfants sans parents</li>
-	<li>?? Enfants sans Groupe</li>
 	<li>(Bouclier) Confirmés non Electeurs</li>
 	<li>Chef de famille qui ne sont pas Membre du foyer</li>
-	<li>Individu avec Numéro de téléphone, mais sans adresse mail</li>
-	<li>Individu âgé de plus de 27 ans, ou Fiche créée depuis plus de 18 ou 27 ans et encore membre du Foyer sans être chef de Foyer (ou encore dans le Foyer des Parents)</li>
-	<li>Foyer sans Adresse - Encore à travailler</li>
-	<li>Foyers avec Photo</li>
-	<li>Organisation avec Photo</li>
-	<li>Individu sans Photo</li>
-	<li>E-mails en statut Invalide</li>
+	<li>Foyers avec mails, mais Individus sans mails</li>
+	<li>Liste des Individus décedés</li>
+	<li>Liste des Individus et des Foyers deleted, depuis plus de X ans (3 ans ?)</li>
 	<li>Individu sans Date de naissance : au choix, restreindre la sélection aux fiches les plus récentes</li>	
 	<li>NE PAS afficher la rubrique s'il n'y a pas d'erreurs</li>		
 </ul>
